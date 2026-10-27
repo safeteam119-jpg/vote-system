@@ -39,57 +39,85 @@
     .btn-primary { background: linear-gradient(135deg, #e50020, #c0001b); color: white; width: 100%; margin-top: 16px; padding: 15px; box-shadow: 0 8px 20px rgba(229,0,32,.28); }
     .btn-primary:active { transform: translateY(1px); }
 
-    /* 메인 */
-    #mainScreen { display: none; max-width: 1200px; margin: 0 auto; }
-    .header-info {
-      display: flex; justify-content: space-between; align-items: center;
-      background: rgba(255,255,255,.85); backdrop-filter: saturate(180%) blur(14px);
-      padding: 16px 18px; border-radius: 16px; margin-bottom: 18px;
-      box-shadow: 0 4px 20px rgba(20,25,40,.05); gap: 12px; border: 1px solid #eceef2;
+    /* 메뉴(첫 화면) */
+    #menuScreen { display: none; max-width: 460px; margin: 0 auto; padding-top: 10px; }
+    #menuUserInfo { text-align: center; color: #8b94a3; font-size: 0.85em; font-weight: 600; margin-bottom: 14px; }
+    .menu-desc { text-align: center; color: #5b6472; font-size: 0.95em; line-height: 1.6; margin: 0 0 26px; }
+    .menu-btn {
+      width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center;
+      border: none; border-radius: 20px; padding: 22px 18px; margin-bottom: 16px; cursor: pointer;
+      color: #fff; box-shadow: 0 10px 24px rgba(20,25,40,.12); transition: transform .15s ease;
     }
-    .header-title-wrapper { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
-    .header-title-wrapper h2 { font-size: 1.15em; color: #1a1f2b; font-weight: 800; }
-    #userInfoDisplay { color: #8b94a3; font-size: 0.82em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-    .btn-refresh { background: #fff0f1; color: #e50020; border: none; padding: 11px 15px; border-radius: 11px; font-weight: 700; flex-shrink: 0; }
+    .menu-btn:active { transform: scale(0.98); }
+    .menu-btn-vote { background: linear-gradient(135deg, #e50020, #c0001b); box-shadow: 0 10px 26px rgba(229,0,32,.3); }
+    .menu-btn-all { background: linear-gradient(135deg, #343b47, #1a1f2b); }
+    .menu-btn-title { font-size: 1.25em; font-weight: 800; }
+    .menu-btn-sub { font-size: 0.8em; font-weight: 600; opacity: .85; margin-top: 7px; text-align: center; }
+
+    /* 메인(갤러리) */
+    #mainScreen { display: none; max-width: 1200px; margin: 0 auto; }
+    .gallery-topbar {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      margin-bottom: 16px;
+    }
+    .btn-back {
+      background: #e9ebf0; color: #5b6472; border: none; padding: 10px 14px; border-radius: 11px;
+      font-weight: 700; font-size: 0.82em; flex-shrink: 0;
+    }
+    .btn-back:active { background: #d7dae2; }
+    .gallery-title {
+      flex: 1; text-align: center; font-size: 1em; font-weight: 800; color: #1a1f2b;
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0 4px;
+    }
+    .btn-refresh { background: #fff0f1; color: #e50020; border: none; padding: 10px 14px; border-radius: 11px; font-weight: 700; font-size: 0.82em; flex-shrink: 0; }
     .btn-refresh:active { background: #e50020; color: #fff; }
 
-    .segment { display: flex; gap: 4px; background: #e9ebf0; border-radius: 15px; padding: 5px; max-width: 460px; margin: 0 auto 20px; }
-    .segment button { flex: 1; padding: 12px 8px; border-radius: 11px; background: transparent; color: #5b6472; font-size: 0.88em; font-weight: 700; }
-    .segment button.active { background: #fff; color: #e50020; box-shadow: 0 2px 10px rgba(20,25,40,.05); }
-
-    @media (max-width: 600px) {
-      .header-info { flex-direction: column; align-items: stretch; text-align: center; }
-      .btn-refresh { width: 100%; padding: 12px; }
-      #userInfoDisplay { white-space: normal; }
-    }
-
-    /* 갤러리 */
-    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
-    @media (min-width: 600px) { .gallery { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; } }
+    /* 갤러리: 모바일 2열(한 화면에 4개 내외) / 넓은 화면은 자동 확장 */
+    .gallery { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    @media (min-width: 600px) { .gallery { grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 18px; } }
     .card {
-      background: white; border-radius: 16px; border: 1px solid #eceef2; overflow: hidden;
+      background: white; border-radius: 14px; border: 1px solid #eceef2; overflow: hidden;
       box-shadow: 0 4px 15px rgba(20,25,40,.05); display: flex; flex-direction: column;
       animation: fadeUp .4s cubic-bezier(.22,.61,.36,1) both;
     }
     .card-frame { position: relative; width: 100%; aspect-ratio: 1 / 1.414; background-color: #f6f8fa; border-bottom: 1px solid #f1f5f9; overflow: hidden; cursor: zoom-in; }
     .card-frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
-    .pdf-tag { position: absolute; top: 8px; left: 8px; z-index: 2; background: rgba(26,31,43,.72); color: #fff; font-size: 0.68em; font-weight: 700; padding: 4px 9px; border-radius: 30px; }
+    .pdf-tag { position: absolute; top: 6px; left: 6px; z-index: 2; background: rgba(26,31,43,.72); color: #fff; font-size: 0.62em; font-weight: 700; padding: 3px 8px; border-radius: 30px; }
     @supports not (aspect-ratio: 1 / 1) { .card-frame { height: 0; padding-bottom: 141.4%; } }
 
-    .card-body { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
-    @media (min-width: 600px) { .card-body { padding: 16px; } }
+    .card-body { padding: 8px; display: flex; flex-direction: column; flex-grow: 1; }
+    @media (min-width: 600px) { .card-body { padding: 14px; } }
 
-    .art-label { display: flex; border-radius: 12px; overflow: hidden; border: 1px solid #eceef2; margin-bottom: 12px; background: white; width: 100%; align-items: stretch; min-height: 52px; }
-    .art-label-title { background: linear-gradient(135deg, #fff0f1, #ffe4e6); color: #e50020; font-weight: 700; padding: 8px 9px; font-size: 0.72em; display: flex; align-items: center; justify-content: center; min-width: 48px; flex-shrink: 0; }
-    .art-label-content { color: #1a1f2b; font-weight: 700; padding: 8px; font-size: 0.82em; flex-grow: 1; text-align: center; display: flex; align-items: center; justify-content: center; word-break: keep-all; overflow-wrap: break-word; line-height: 1.3; }
+    /* 작품명 라벨: 글자가 잘리지 않고 틀 안에 전부 들어가도록
+       - overflow:hidden 제거 (혹시라도 텍스트가 잘리는 일 방지)
+       - 높이는 min-height만 두고 내용에 따라 자유롭게 늘어남
+       - 글자 크기는 clamp()로 화면 폭에 맞춰 자동 조절 */
+    .art-label { display: flex; border-radius: 10px; border: 1px solid #eceef2; margin-bottom: 8px; background: white; width: 100%; align-items: stretch; min-height: 42px; }
+    .art-label-title {
+      background: linear-gradient(135deg, #fff0f1, #ffe4e6); color: #e50020; font-weight: 700;
+      padding: 6px 8px; font-size: clamp(0.6em, 2.2vw, 0.82em); display: flex; align-items: center;
+      justify-content: center; flex-shrink: 0; white-space: nowrap;
+      border-radius: 10px 0 0 10px;
+    }
+    .art-label-content {
+      color: #1a1f2b; font-weight: 700; padding: 6px 8px; font-size: clamp(0.62em, 2.4vw, 0.9em);
+      flex-grow: 1; text-align: center; display: flex; align-items: center; justify-content: center;
+      word-break: keep-all; overflow-wrap: break-word; white-space: normal; line-height: 1.3;
+      border-radius: 0 10px 10px 0;
+    }
 
     .vote-action-area { margin-top: auto; }
-    .vote-count-wrap { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; margin-bottom: 10px; background: #fff0f1; color: #e50020; border-radius: 30px; font-weight: 800; font-size: 0.88em; }
-    .btn-vote { background: linear-gradient(135deg, #e50020, #c0001b); color: white; width: 100%; margin-bottom: 8px; padding: 12px; border-radius: 12px; box-shadow: 0 6px 16px rgba(229,0,32,.26); font-weight: 800; font-size: 0.9em; }
+    .vote-count-wrap { display: inline-flex; align-items: center; gap: 4px; padding: 4px 10px; margin-bottom: 7px; background: #fff0f1; color: #e50020; border-radius: 30px; font-weight: 800; font-size: 0.76em; }
+    .btn-vote { background: linear-gradient(135deg, #e50020, #c0001b); color: white; width: 100%; margin-bottom: 6px; padding: 9px; border-radius: 10px; box-shadow: 0 6px 16px rgba(229,0,32,.26); font-weight: 800; font-size: 0.76em; }
     .btn-vote:disabled { background: #eef0f4; color: #94a3b8; box-shadow: none; cursor: not-allowed; }
     .btn-vote.voted-mine { background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 6px 16px rgba(16,185,129,.3); }
-    .btn-comment-toggle { background-color: white; color: #5b6472; border: 1.4px solid #eceef2; width: 100%; padding: 10px; border-radius: 12px; font-weight: 700; font-size: 0.84em; }
+    .btn-comment-toggle { background-color: white; color: #5b6472; border: 1.4px solid #eceef2; width: 100%; padding: 8px; border-radius: 10px; font-weight: 700; font-size: 0.72em; }
     .btn-comment-toggle:active { border-color: #e50020; color: #e50020; background: #fff0f1; }
+    @media (min-width: 600px) {
+      .btn-vote { padding: 12px; font-size: 0.9em; }
+      .btn-comment-toggle { padding: 10px; font-size: 0.84em; }
+      .vote-count-wrap { padding: 5px 12px; font-size: 0.88em; }
+    }
 
     /* 댓글 모달 */
     #commentModal { display: none; position: fixed; inset: 0; background: rgba(16,20,30,.55); backdrop-filter: blur(3px); z-index: 1000; justify-content: center; align-items: flex-end; padding: 0; }
@@ -144,23 +172,31 @@
     </div>
   </div>
 
+  <!-- 메뉴(첫 화면) -->
+  <div id="menuScreen">
+    <div id="menuUserInfo"></div>
+    <p class="menu-desc">
+      매장 직원분들의 소중한 작품입니다.^^<br>
+      작품을 클릭해 크게 보실 수 있습니다.
+    </p>
+    <button class="menu-btn menu-btn-vote" onclick="openGallery('round1')">
+      <div class="menu-btn-title">🎨 투표하기</div>
+      <div class="menu-btn-sub">(내부심사를 통하여 선정된 20개의 작품입니다.)</div>
+    </button>
+    <button class="menu-btn menu-btn-all" onclick="openGallery('all')">
+      <div class="menu-btn-title">🖼️ 전체 출품작 보기</div>
+    </button>
+  </div>
+
+  <!-- 갤러리 화면 -->
   <div id="mainScreen">
-    <div class="header-info">
-      <div class="header-title-wrapper">
-        <h2 id="mainTitle">🎨 안전보건팀 내부 1차 심사작 투표</h2>
-        <span id="userInfoDisplay"></span>
-      </div>
+    <div class="gallery-topbar">
+      <button class="btn-back" onclick="goToMenu()">◀ 메뉴로</button>
+      <div class="gallery-title" id="mainTitle">🎨 후보작 투표</div>
       <button class="btn-refresh" onclick="loadData()">🔄 새로고침</button>
     </div>
 
-    <div class="segment">
-      <button id="tab-round1" class="active" onclick="switchTab('round1')">⭐ 1차 심사작</button>
-      <button id="tab-all" onclick="switchTab('all')">🖼️ 전체 출품작</button>
-    </div>
-
     <div class="gallery" id="galleryContainer"></div>
-
-    <div id="bottomActionContainer" style="text-align:center; margin-top:36px; margin-bottom:30px;"></div>
   </div>
 
   <!-- 댓글 모달 -->
@@ -253,9 +289,23 @@
       currentUser.empId = id;
       currentUser.nickname = nick;
       document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('menuUserInfo').innerText = nick + " (" + id + ") 님 환영합니다!";
+      document.getElementById('menuScreen').style.display = 'block';
+    }
+
+    function openGallery(tabId) {
+      currentTab = tabId;
+      document.getElementById('mainTitle').innerText = tabId === 'round1' ? '🎨 후보작 투표' : '🖼️ 전체 출품작 갤러리';
+      document.getElementById('menuScreen').style.display = 'none';
       document.getElementById('mainScreen').style.display = 'block';
-      document.getElementById('userInfoDisplay').innerText = nick + " (" + id + ") 님 환영합니다!";
+      window.scrollTo({ top: 0 });
       loadData();
+    }
+
+    function goToMenu() {
+      document.getElementById('mainScreen').style.display = 'none';
+      document.getElementById('menuScreen').style.display = 'block';
+      window.scrollTo({ top: 0 });
     }
 
     function loadData() {
@@ -290,18 +340,8 @@
       });
     }
 
-    function switchTab(tabId) {
-      currentTab = tabId;
-      document.getElementById('tab-round1').classList.toggle('active', tabId === 'round1');
-      document.getElementById('tab-all').classList.toggle('active', tabId === 'all');
-      document.getElementById('mainTitle').innerText = tabId === 'round1' ? '🎨 안전보건팀 내부 1차 심사작 투표' : '🖼️ 전체 출품작 갤러리';
-      renderGallery();
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-
     function renderGallery() {
       var container = document.getElementById('galleryContainer');
-      var bottomContainer = document.getElementById('bottomActionContainer');
       container.innerHTML = '';
 
       var entries = currentData.candidates[currentTab] || [];
@@ -351,12 +391,6 @@
           cardHTML += '</div></div>';
           container.innerHTML += cardHTML;
         });
-      }
-
-      if (currentTab === 'round1') {
-        bottomContainer.innerHTML = '<button class="btn-primary" style="background:linear-gradient(135deg,#343b47,#1a1f2b); max-width:400px; padding:15px; font-size:1.02em; border-radius:50px;" onclick="switchTab(\'all\')">👇 전체 출품작 모두 보기</button>';
-      } else {
-        bottomContainer.innerHTML = '<button class="btn-primary" style="max-width:400px; padding:15px; font-size:1.02em; border-radius:50px;" onclick="switchTab(\'round1\')">👆 내부 심사작 투표로 돌아가기</button>';
       }
     }
 
