@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>🎨 매장 그림 컨테스트 투표</title>
+  <style>
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+    body {
+      font-family: 'Pretendard', 'Malgun Gothic', -apple-system, sans-serif;
+      background-color: #f4f5f8; color: #1a1f2b; margin: 0; padding: 12px;
+      line-height: 1.5; -webkit-font-smoothing: antialiased;
+    }
+    body::before {
+      content: ''; position: fixed; inset: 0; z-index: -1;
+      background:
+        radial-gradient(900px 500px at 85% -10%, rgba(229,0,32,.07), transparent 60%),
+        radial-gradient(700px 500px at -10% 110%, rgba(229,0,32,.045), transparent 60%);
+    }
+    h1, h2, h3 { margin: 0; letter-spacing: -.02em; }
+    button { font-family: inherit; padding: 12px 20px; border: none; border-radius: 12px; cursor: pointer; font-size: 16px; font-weight: 700; transition: all .2s cubic-bezier(.22,.61,.36,1); }
+
+    /* 로그인 */
+    #loginScreen {
+      max-width: 100%; width: 420px; margin: 40px auto; background: white;
+      border-radius: 24px; box-shadow: 0 20px 50px rgba(20,25,40,.12);
+      text-align: center; overflow: hidden; animation: popIn .5s cubic-bezier(.22,.61,.36,1);
+    }
+    .login-hero { background: linear-gradient(135deg, #e50020, #c0001b); padding: 36px 26px 42px; color: #fff; position: relative; overflow: hidden; }
+    .login-hero::after { content: '🎨'; position: absolute; right: -16px; bottom: -24px; font-size: 120px; opacity: .14; transform: rotate(-12deg); }
+    .login-hero h2 { font-size: 1.4em; line-height: 1.35; margin-bottom: 10px; }
+    .login-hero p { font-size: 0.9em; opacity: .92; margin: 0; }
+    .login-body { padding: 24px; }
+    input[type="text"] {
+      width: 100%; padding: 14px 16px; margin: 8px 0; border: 1.6px solid #eceef2;
+      border-radius: 13px; font-size: 16px; background-color: #fafbfc; transition: all .18s ease; font-family: inherit;
+    }
+    input[type="text"]:focus { outline: none; border-color: #e50020; background-color: white; box-shadow: 0 0 0 4px rgba(229,0,32,.1); }
+    .btn-primary { background: linear-gradient(135deg, #e50020, #c0001b); color: white; width: 100%; margin-top: 16px; padding: 15px; box-shadow: 0 8px 20px rgba(229,0,32,.28); }
+    .btn-primary:active { transform: translateY(1px); }
+
+    /* 메인 */
+    #mainScreen { display: none; max-width: 1200px; margin: 0 auto; }
+    .header-info {
+      display: flex; justify-content: space-between; align-items: center;
+      background: rgba(255,255,255,.85); backdrop-filter: saturate(180%) blur(14px);
+      padding: 16px 18px; border-radius: 16px; margin-bottom: 18px;
+      box-shadow: 0 4px 20px rgba(20,25,40,.05); gap: 12px; border: 1px solid #eceef2;
+    }
+    .header-title-wrapper { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+    .header-title-wrapper h2 { font-size: 1.15em; color: #1a1f2b; font-weight: 800; }
+    #userInfoDisplay { color: #8b94a3; font-size: 0.82em; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .btn-refresh { background: #fff0f1; color: #e50020; border: none; padding: 11px 15px; border-radius: 11px; font-weight: 700; flex-shrink: 0; }
+    .btn-refresh:active { background: #e50020; color: #fff; }
+
+    .segment { display: flex; gap: 4px; background: #e9ebf0; border-radius: 15px; padding: 5px; max-width: 460px; margin: 0 auto 20px; }
+    .segment button { flex: 1; padding: 12px 8px; border-radius: 11px; background: transparent; color: #5b6472; font-size: 0.88em; font-weight: 700; }
+    .segment button.active { background: #fff; color: #e50020; box-shadow: 0 2px 10px rgba(20,25,40,.05); }
+
+    @media (max-width: 600px) {
+      .header-info { flex-direction: column; align-items: stretch; text-align: center; }
+      .btn-refresh { width: 100%; padding: 12px; }
+      #userInfoDisplay { white-space: normal; }
+    }
+
+    /* 갤러리 */
+    .gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 14px; }
+    @media (min-width: 600px) { .gallery { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; } }
+    .card {
+      background: white; border-radius: 16px; border: 1px solid #eceef2; overflow: hidden;
+      box-shadow: 0 4px 15px rgba(20,25,40,.05); display: flex; flex-direction: column;
+      animation: fadeUp .4s cubic-bezier(.22,.61,.36,1) both;
+    }
+    .card-frame { position: relative; width: 100%; aspect-ratio: 1 / 1.414; background-color: #f6f8fa; border-bottom: 1px solid #f1f5f9; overflow: hidden; cursor: zoom-in; }
+    .card-frame img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center; }
+    .pdf-tag { position: absolute; top: 8px; left: 8px; z-index: 2; background: rgba(26,31,43,.72); color: #fff; font-size: 0.68em; font-weight: 700; padding: 4px 9px; border-radius: 30px; }
+    @supports not (aspect-ratio: 1 / 1) { .card-frame { height: 0; padding-bottom: 141.4%; } }
+
+    .card-body { padding: 12px; display: flex; flex-direction: column; flex-grow: 1; }
+    @media (min-width: 600px) { .card-body { padding: 16px; } }
+
+    .art-label { display: flex; border-radius: 12px; overflow: hidden; border: 1px solid #eceef2; margin-bottom: 12px; background: white; width: 100%; align-items: stretch; min-height: 52px; }
+    .art-label-title { background: linear-gradient(135deg, #fff0f1, #ffe4e6); color: #e50020; font-weight: 700; padding: 8px 9px; font-size: 0.72em; display: flex; align-items: center; justify-content: center; min-width: 48px; flex-shrink: 0; }
+    .art-label-content { color: #1a1f2b; font-weight: 700; padding: 8px; font-size: 0.82em; flex-grow: 1; text-align: center; display: flex; align-items: center; justify-content: center; word-break: keep-all; overflow-wrap: break-word; line-height: 1.3; }
+
+    .vote-action-area { margin-top: auto; }
+    .vote-count-wrap { display: inline-flex; align-items: center; gap: 5px; padding: 5px 12px; margin-bottom: 10px; background: #fff0f1; color: #e50020; border-radius: 30px; font-weight: 800; font-size: 0.88em; }
+    .btn-vote { background: linear-gradient(135deg, #e50020, #c0001b); color: white; width: 100%; margin-bottom: 8px; padding: 12px; border-radius: 12px; box-shadow: 0 6px 16px rgba(229,0,32,.26); font-weight: 800; font-size: 0.9em; }
+    .btn-vote:disabled { background: #eef0f4; color: #94a3b8; box-shadow: none; cursor: not-allowed; }
+    .btn-vote.voted-mine { background: linear-gradient(135deg, #10b981, #059669); color: white; box-shadow: 0 6px 16px rgba(16,185,129,.3); }
+    .btn-comment-toggle { background-color: white; color: #5b6472; border: 1.4px solid #eceef2; width: 100%; padding: 10px; border-radius: 12px; font-weight: 700; font-size: 0.84em; }
+    .btn-comment-toggle:active { border-color: #e50020; color: #e50020; background: #fff0f1; }
+
+    /* 댓글 모달 */
+    #commentModal { display: none; position: fixed; inset: 0; background: rgba(16,20,30,.55); backdrop-filter: blur(3px); z-index: 1000; justify-content: center; align-items: flex-end; padding: 0; }
+    @media (min-width: 600px) { #commentModal { align-items: center; padding: 15px; } }
+    .modal-content { background: white; width: 100%; max-width: 500px; border-radius: 20px 20px 0 0; display: flex; flex-direction: column; max-height: 85vh; overflow: hidden; box-shadow: 0 20px 50px rgba(0,0,0,0.25); animation: slideUp .32s cubic-bezier(.22,.61,.36,1); }
+    @media (min-width: 600px) { .modal-content { border-radius: 20px; } }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 16px 18px; border-bottom: 1px solid #f1f5f9; }
+    .modal-header h3 { font-weight: 800; font-size: 1.05em; }
+    .modal-body { padding: 14px; overflow-y: auto; flex-grow: 1; background: #f4f5f8; }
+    .comment-item { background: white; padding: 12px 14px; margin-bottom: 9px; border-radius: 12px; border: 1px solid #eceef2; }
+    .comment-user { font-weight: 800; color: #e50020; font-size: 0.9em; }
+    .comment-time { font-size: 0.72em; color: #8b94a3; float: right; margin-top: 2px; }
+    .comment-text { margin-top: 5px; font-size: 0.9em; color: #2c333f; line-height: 1.5; word-break: break-word; }
+    .modal-footer { padding: 12px; border-top: 1px solid #f1f5f9; display: flex; gap: 8px; }
+    .modal-footer input { flex-grow: 1; margin: 0; padding: 12px; background-color: #f6f7f9; border: 1.4px solid #eceef2; border-radius: 12px; font-size: 16px; }
+
+    #loadingOverlay { display: none; position: fixed; inset: 0; background: rgba(255,255,255,0.92); z-index: 9999; flex-direction: column; justify-content: center; align-items: center; font-size: 1em; font-weight: 700; color: #e50020; text-align: center; padding: 20px; }
+    .spinner { width: 46px; height: 46px; border-radius: 50%; margin-bottom: 16px; border: 4px solid #fff0f1; border-top-color: #e50020; animation: spin .8s linear infinite; }
+
+    /* 라이트박스 */
+    #imageLightbox { display: none; position: fixed; inset: 0; background: rgba(8,10,16,0.94); z-index: 2000; flex-direction: column; justify-content: center; align-items: center; }
+    #lightboxImg { max-width: 94%; max-height: 80vh; object-fit: contain; border-radius: 10px; }
+    .lightbox-nav { position: absolute; top: 50%; transform: translateY(-50%); color: white; font-size: 1.8em; cursor: pointer; user-select: none; width: 50px; height: 50px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.12); }
+    #prevBtn { left: 12px; } #nextBtn { right: 12px; }
+    #closeLightbox { position: absolute; top: 16px; right: 16px; color: white; font-size: 1.5em; cursor: pointer; width: 44px; height: 44px; border-radius: 50%; display: flex; align-items: center; justify-content: center; background: rgba(255,255,255,.12); z-index: 2001; }
+    #lightboxTitle { color: white; font-size: 1em; margin-top: 14px; font-weight: 700; text-align: center; padding: 0 20px; }
+    .lightbox-open { position: absolute; bottom: 20px; background: rgba(255,255,255,.16); color: #fff; padding: 10px 20px; border-radius: 30px; font-size: 0.88em; font-weight: 700; text-decoration: none; }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes slideUp { from { transform: translateY(40px); opacity: .6; } to { transform: translateY(0); opacity: 1; } }
+    @keyframes popIn { from { opacity: 0; transform: scale(.94); } to { opacity: 1; transform: scale(1); } }
+  </style>
+</head>
+<body>
+
+  <div id="loadingOverlay">
+    <div class="spinner"></div>
+    <div>데이터를 동기화 중입니다...<br><span style="font-size: 0.7em; color: #8b94a3; font-weight: 500;">(작품을 읽어오는 중)</span></div>
+  </div>
+
+  <div id="loginScreen">
+    <div class="login-hero">
+      <h2>🎨 매장 그림 컨테스트 투표</h2>
+      <p>마음에 드는 작품에 소중한 한 표를 💝</p>
+    </div>
+    <div class="login-body">
+      <p style="color:#5b6472; font-size:0.9em; margin:0 0 16px;">참여를 위해 사번과 닉네임을 입력해주세요.<br>(1인 1회 투표)</p>
+      <input type="text" id="empId" placeholder="사번 (예: AD1234567)">
+      <input type="text" id="nickname" placeholder="사용할 닉네임" onkeypress="if(event.keyCode==13) login()">
+      <button class="btn-primary" onclick="login()">입장하기</button>
+    </div>
+  </div>
+
+  <div id="mainScreen">
+    <div class="header-info">
+      <div class="header-title-wrapper">
+        <h2 id="mainTitle">🎨 안전보건팀 내부 1차 심사작 투표</h2>
+        <span id="userInfoDisplay"></span>
+      </div>
+      <button class="btn-refresh" onclick="loadData()">🔄 새로고침</button>
+    </div>
+
+    <div class="segment">
+      <button id="tab-round1" class="active" onclick="switchTab('round1')">⭐ 1차 심사작</button>
+      <button id="tab-all" onclick="switchTab('all')">🖼️ 전체 출품작</button>
+    </div>
+
+    <div class="gallery" id="galleryContainer"></div>
+
+    <div id="bottomActionContainer" style="text-align:center; margin-top:36px; margin-bottom:30px;"></div>
+  </div>
+
+  <!-- 댓글 모달 -->
+  <div id="commentModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">작품 댓글</h3>
+        <span style="cursor:pointer; font-size:1.5em; color:#94a3b8;" onclick="closeModal()">&times;</span>
+      </div>
+      <div class="modal-body" id="modalCommentsList"></div>
+      <div class="modal-footer">
+        <input type="text" id="modalInput" placeholder="응원 한마디를 남겨주세요!" onkeypress="if(event.keyCode==13) postComment()">
+        <button class="btn-primary" style="width:64px; margin:0; padding:12px 0;" onclick="postComment()">등록</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 라이트박스 -->
+  <div id="imageLightbox">
+    <span id="closeLightbox" onclick="closeImageModal()">&times;</span>
+    <span class="lightbox-nav" id="prevBtn" onclick="changeImage(-1)">&#10094;</span>
+    <img id="lightboxImg" src="">
+    <div id="lightboxTitle"></div>
+    <a id="lightboxOpen" class="lightbox-open" href="#" target="_blank" rel="noopener" style="display:none;">📄 원본(PDF) 열기</a>
+    <span class="lightbox-nav" id="nextBtn" onclick="changeImage(1)">&#10095;</span>
+  </div>
+
+  <script>
+    /* =======================================================
+       ★ 배포 후 여기 한 줄만 실제 Apps Script API 주소로 교체 ★
+       (api/Code.gs 를 "웹 앱"으로 배포하고 받은 /exec 주소)
+       - 작품 목록/이미지는 GitHub(artworks.json, img/)에서 로드
+       - 투표/댓글 저장 + 집계만 이 API로 처리 (구글 시트 연동)
+       ======================================================= */
+    var API_URL = "https://script.google.com/macros/s/AKfycbxanP4hkjqR_BGB85PI4WiTGvk7GfDmeAFDFGowXmnCdgl05LUuiFExUju0iI64HDEk1A/exec";
+
+    var currentUser = { empId: '', nickname: '' };
+    var currentData = { candidates: { all: [], round1: [] }, voteCount: {}, voters: {}, comments: [] };
+    var currentModalArtId = null;
+    var currentTab = 'round1';
+    var currentGalleryEntries = [];
+    var currentImageIndex = 0;
+
+    var FALLBACK = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="424"><rect width="100%" height="100%" fill="#f2f4f7"/><text x="50%" y="50%" fill="#b4bcc8" font-family="sans-serif" font-size="15" text-anchor="middle" dy=".3em">이미지를 불러올 수 없어요</text></svg>'
+    );
+
+    var PDF_PLACEHOLDER = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(
+      '<svg xmlns="http://www.w3.org/2000/svg" width="300" height="424"><rect width="100%" height="100%" fill="#fff0f1"/><text x="50%" y="46%" fill="#e50020" font-family="sans-serif" font-size="56" text-anchor="middle">📄</text><text x="50%" y="60%" fill="#e50020" font-family="sans-serif" font-size="17" font-weight="bold" text-anchor="middle">PDF 작품</text></svg>'
+    );
+
+    function esc(s) {
+      return String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    }
+
+    /* ===== JSONP 호출 (CORS 회피) ===== */
+    var _jsonpSeq = 0;
+    function jsonp(params, onSuccess, onError) {
+      var cbName = '__cb_' + (_jsonpSeq++) + '_' + Date.now();
+      var timer = setTimeout(function () {
+        cleanup();
+        if (onError) onError('요청 시간이 초과되었습니다. 네트워크를 확인해주세요.');
+      }, 20000);
+
+      function cleanup() {
+        clearTimeout(timer);
+        delete window[cbName];
+        if (script && script.parentNode) script.parentNode.removeChild(script);
+      }
+
+      window[cbName] = function (data) {
+        cleanup();
+        onSuccess(data);
+      };
+
+      var qs = Object.keys(params).map(function (k) {
+        return encodeURIComponent(k) + '=' + encodeURIComponent(params[k]);
+      }).join('&');
+
+      var script = document.createElement('script');
+      script.src = API_URL + '?callback=' + cbName + '&' + qs;
+      script.onerror = function () { cleanup(); if (onError) onError('서버에 연결할 수 없습니다.'); };
+      document.body.appendChild(script);
+    }
+
+    function login() {
+      var id = document.getElementById('empId').value.trim();
+      var nick = document.getElementById('nickname').value.trim();
+      if (!id || !nick) return alert("사번과 닉네임을 모두 입력해주세요.");
+      currentUser.empId = id;
+      currentUser.nickname = nick;
+      document.getElementById('loginScreen').style.display = 'none';
+      document.getElementById('mainScreen').style.display = 'block';
+      document.getElementById('userInfoDisplay').innerText = nick + " (" + id + ") 님 환영합니다!";
+      loadData();
+    }
+
+    function loadData() {
+      showLoading(true);
+      // 작품 목록 + 투표/댓글 집계를 API(Apps Script)에서 한 번에 로드
+      // (이미지는 응답에 담긴 구글 드라이브 썸네일 링크로 로드됨)
+      jsonp({ action: 'init' }, function (data) {
+        currentData = {
+          candidates: {
+            all: (data.candidates && data.candidates.all) || [],
+            round1: (data.candidates && data.candidates.round1) || []
+          },
+          voteCount: data.voteCount || {},
+          voters: data.voters || {},
+          comments: data.comments || []
+        };
+        renderGallery();
+        if (currentModalArtId) renderModalComments(currentModalArtId);
+        showLoading(false);
+      }, function (err) {
+        alert("데이터를 불러오는데 실패했습니다: " + err);
+        showLoading(false);
+      });
+    }
+
+    function switchTab(tabId) {
+      currentTab = tabId;
+      document.getElementById('tab-round1').classList.toggle('active', tabId === 'round1');
+      document.getElementById('tab-all').classList.toggle('active', tabId === 'all');
+      document.getElementById('mainTitle').innerText = tabId === 'round1' ? '🎨 안전보건팀 내부 1차 심사작 투표' : '🖼️ 전체 출품작 갤러리';
+      renderGallery();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function renderGallery() {
+      var container = document.getElementById('galleryContainer');
+      var bottomContainer = document.getElementById('bottomActionContainer');
+      container.innerHTML = '';
+
+      var entries = currentData.candidates[currentTab] || [];
+      currentGalleryEntries = entries;
+      var hasVoted = currentData.voters[currentUser.empId] !== undefined;
+
+      if (entries.length === 0) {
+        container.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#64748b; padding:50px;">등록된 작품이 없습니다.</div>';
+      } else {
+        entries.forEach(function (art, index) {
+          var nameText = art.name ? ' (' + esc(art.name) + ')' : "";
+          var labelDisplay = esc(art.title) + nameText;
+          var pdfTag = art.isPdf ? '<div class="pdf-tag">📄 PDF</div>' : '';
+
+          var cardHTML = '' +
+            '<div class="card" style="animation-delay:' + (index * 0.03) + 's">' +
+              '<div class="card-frame" onclick="openImageModal(' + index + ')">' +
+                pdfTag +
+                '<img src="' + (art.img ? esc(art.img) : PDF_PLACEHOLDER) + '" loading="lazy" onerror="this.onerror=null;this.src=FALLBACK">' +
+              '</div>' +
+              '<div class="card-body">' +
+                '<div class="art-label">' +
+                  '<div class="art-label-title">작품명</div>' +
+                  '<div class="art-label-content">' + labelDisplay + '</div>' +
+                '</div>';
+
+          if (currentTab === 'round1') {
+            var votes = currentData.voteCount[art.id] || 0;
+            var commentCount = currentData.comments.filter(function (c) { return c.artId === art.id; }).length;
+            var btnHtml = "";
+            if (hasVoted) {
+              if (currentData.voters[currentUser.empId] === art.id) {
+                btnHtml = '<button class="btn-vote voted-mine" disabled>✅ 내가 투표한 작품</button>';
+              } else {
+                btnHtml = '<button class="btn-vote" disabled>투표 완료 (1인 1회)</button>';
+              }
+            } else {
+              btnHtml = '<button class="btn-vote" onclick="castVote(\'' + art.id + '\')">이 작품에 투표하기 👍</button>';
+            }
+            cardHTML += '' +
+              '<div class="vote-action-area">' +
+                '<div class="vote-count-wrap">❤️ ' + votes + '</div>' +
+                btnHtml +
+                '<button class="btn-comment-toggle" onclick="openModal(\'' + art.id + '\', \'' + esc(art.title).replace(/'/g, "\\'") + '\')">💬 응원댓글 (' + commentCount + ')</button>' +
+              '</div>';
+          }
+          cardHTML += '</div></div>';
+          container.innerHTML += cardHTML;
+        });
+      }
+
+      if (currentTab === 'round1') {
+        bottomContainer.innerHTML = '<button class="btn-primary" style="background:linear-gradient(135deg,#343b47,#1a1f2b); max-width:400px; padding:15px; font-size:1.02em; border-radius:50px;" onclick="switchTab(\'all\')">👇 전체 출품작 모두 보기</button>';
+      } else {
+        bottomContainer.innerHTML = '<button class="btn-primary" style="max-width:400px; padding:15px; font-size:1.02em; border-radius:50px;" onclick="switchTab(\'round1\')">👆 내부 심사작 투표로 돌아가기</button>';
+      }
+    }
+
+    /* 라이트박스 */
+    function openImageModal(index) { currentImageIndex = index; updateImageModal(); document.getElementById('imageLightbox').style.display = 'flex'; }
+    function closeImageModal() { document.getElementById('imageLightbox').style.display = 'none'; }
+    function changeImage(direction) {
+      currentImageIndex += direction;
+      if (currentImageIndex < 0) currentImageIndex = currentGalleryEntries.length - 1;
+      if (currentImageIndex >= currentGalleryEntries.length) currentImageIndex = 0;
+      updateImageModal();
+    }
+    function updateImageModal() {
+      var art = currentGalleryEntries[currentImageIndex];
+      if (!art) return;
+      var nameText = art.name ? ' (' + art.name + ')' : "";
+      var img = document.getElementById('lightboxImg');
+      img.src = art.img ? art.img : PDF_PLACEHOLDER;
+      img.onerror = function () { this.onerror = null; this.src = FALLBACK; };
+      document.getElementById('lightboxTitle').innerText = art.title + nameText;
+      var openBtn = document.getElementById('lightboxOpen');
+      if (art.isPdf && art.fileId) {
+        openBtn.href = 'https://drive.google.com/file/d/' + art.fileId + '/view';
+        openBtn.style.display = 'inline-block';
+      } else {
+        openBtn.style.display = 'none';
+      }
+    }
+
+    var touchStartX = 0, touchEndX = 0;
+    document.getElementById('imageLightbox').addEventListener('touchstart', function (e) { touchStartX = e.changedTouches[0].screenX; }, { passive: true });
+    document.getElementById('imageLightbox').addEventListener('touchend', function (e) {
+      touchEndX = e.changedTouches[0].screenX;
+      if (touchEndX < touchStartX - 50) changeImage(1);
+      if (touchEndX > touchStartX + 50) changeImage(-1);
+    }, { passive: true });
+
+    function castVote(artId) {
+      if (!confirm("1인 1회 투표이며, 완료 후에는 변경할 수 없습니다.\n투표하시겠습니까?")) return;
+      showLoading(true);
+      jsonp({ action: 'vote', empId: currentUser.empId, nickname: currentUser.nickname, artworkId: artId },
+        function (res) { alert(res.message); loadData(); },
+        function (err) { alert("투표 처리 실패: " + err); showLoading(false); });
+    }
+
+    function openModal(artId, title) {
+      currentModalArtId = artId;
+      document.getElementById('modalTitle').innerText = title + " 댓글";
+      document.getElementById('commentModal').style.display = 'flex';
+      renderModalComments(artId);
+    }
+    function closeModal() { document.getElementById('commentModal').style.display = 'none'; currentModalArtId = null; }
+
+    function renderModalComments(artId) {
+      var listEl = document.getElementById('modalCommentsList');
+      var artComments = currentData.comments.filter(function (c) { return c.artId === artId; });
+      if (artComments.length === 0) {
+        listEl.innerHTML = "<div style='text-align:center; color:#94a3b8; margin-top:30px;'>가장 먼저 댓글을 남겨보세요! ✨</div>";
+        return;
+      }
+      listEl.innerHTML = artComments.map(function (c) {
+        return '<div class="comment-item"><div><span class="comment-user">' + esc(c.nickname) + '</span><span class="comment-time">' + esc(c.time) + '</span></div><div class="comment-text">' + esc(c.text) + '</div></div>';
+      }).join('');
+      listEl.scrollTop = listEl.scrollHeight;
+    }
+
+    function postComment() {
+      var inputEl = document.getElementById('modalInput');
+      var text = inputEl.value.trim();
+      if (!text) return alert("댓글 내용을 입력해주세요.");
+      showLoading(true);
+      jsonp({ action: 'comment', empId: currentUser.empId, nickname: currentUser.nickname, artworkId: currentModalArtId, text: text },
+        function (res) {
+          if (res.success) { inputEl.value = ''; loadData(); }
+          else { alert(res.message || '댓글 등록 실패'); showLoading(false); }
+        },
+        function (err) { alert("댓글 처리 실패: " + err); showLoading(false); });
+    }
+
+    function showLoading(show) { document.getElementById('loadingOverlay').style.display = show ? 'flex' : 'none'; }
+  </script>
+</body>
+</html>
