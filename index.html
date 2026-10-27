@@ -263,18 +263,27 @@
       // 작품 목록 + 투표/댓글 집계를 API(Apps Script)에서 한 번에 로드
       // (이미지는 응답에 담긴 구글 드라이브 썸네일 링크로 로드됨)
       jsonp({ action: 'init' }, function (data) {
-        currentData = {
-          candidates: {
-            all: (data.candidates && data.candidates.all) || [],
-            round1: (data.candidates && data.candidates.round1) || []
-          },
-          voteCount: data.voteCount || {},
-          voters: data.voters || {},
-          comments: data.comments || []
-        };
-        renderGallery();
-        if (currentModalArtId) renderModalComments(currentModalArtId);
-        showLoading(false);
+        try {
+          if (data && data.success === false) {
+            throw new Error(data.message || '알 수 없는 서버 오류');
+          }
+          currentData = {
+            candidates: {
+              all: (data.candidates && data.candidates.all) || [],
+              round1: (data.candidates && data.candidates.round1) || []
+            },
+            voteCount: data.voteCount || {},
+            voters: data.voters || {},
+            comments: data.comments || []
+          };
+          renderGallery();
+          if (currentModalArtId) renderModalComments(currentModalArtId);
+        } catch (e) {
+          alert("화면을 그리는 중 오류가 발생했습니다: " + e.message);
+        } finally {
+          // 성공하든 실패하든 로딩 화면은 반드시 닫는다 (무한 로딩 방지)
+          showLoading(false);
+        }
       }, function (err) {
         alert("데이터를 불러오는데 실패했습니다: " + err);
         showLoading(false);
