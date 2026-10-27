@@ -196,7 +196,7 @@
       <div class="menu-btn-sub">(내부심사를 통하여 선정된 20개의 작품입니다.)</div>
     </button>
     <button class="menu-btn menu-btn-all" onclick="openGallery('all')">
-      <div class="menu-btn-title">🖼️ 전체 출품작 보기<span id="allCountText"></span></div>
+      <div class="menu-btn-title">🖼️ 전체 출품작 보기 (108개 작품)</div>
     </button>
   </div>
 
@@ -303,27 +303,6 @@
       document.getElementById('loginScreen').style.display = 'none';
       document.getElementById('menuUserInfo').innerText = nick + " (" + id + ") 님 환영합니다!";
       document.getElementById('menuScreen').style.display = 'block';
-      loadMenuCount();
-    }
-
-    // 메뉴의 "전체 출품작 보기" 버튼 옆에 작품 개수를 조용히 가져와 표시 (다른 UI에는 영향 없음)
-    function loadMenuCount() {
-      jsonp({ action: 'init' }, function (data) {
-        try {
-          if (data && data.success === false) return;
-          currentData = {
-            candidates: {
-              all: (data.candidates && data.candidates.all) || [],
-              round1: (data.candidates && data.candidates.round1) || []
-            },
-            voteCount: data.voteCount || {},
-            voters: data.voters || {},
-            comments: data.comments || []
-          };
-          var countEl = document.getElementById('allCountText');
-          if (countEl) countEl.innerText = ' (' + currentData.candidates.all.length + '개 작품)';
-        } catch (e) { /* 개수 표시 실패해도 메인 기능엔 영향 없음 */ }
-      }, function () { /* 실패해도 조용히 무시 (버튼 자체는 정상 작동) */ });
     }
 
     function openGallery(tabId) {
